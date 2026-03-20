@@ -44,7 +44,7 @@ If the request lacks details, use the `question` tool to ask:
 
 ### 3. Consult Knowledge Base
 
-Reference files in `resources/` directory:
+Reference files in `reference/` directory:
 
 - `vagrantfile/index.mdx` - Vagrantfile syntax and load order
 - `providers/` - Provider-specific configurations
