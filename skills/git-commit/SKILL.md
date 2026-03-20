@@ -10,18 +10,31 @@ allowed-tools: Bash, Read, Glob, Grep
 ## Overview
 This skill automates the creation of semantic git commits by analyzing codebase changes and strictly adhering to the **Conventional Commits 1.0.0** specification. It ensures project history is structured, machine-readable, and aligned with Semantic Versioning (SemVer).
 
+## Core Capabilities
+
+- Auto-detect commit type and scope from code changes
+- Generate conventional commit messages with proper formatting
+- Stage files intelligently based on logical grouping
+- Handle breaking changes with appropriate markers
+- Provide interactive clarification for ambiguous situations
+- Support for conventional commit spec 1.0.0
+
 ## Reference Material
 For the full technical specification of Conventional Commits 1.0.0, refer to:
 - `references/conventional-commits.md`
 
-## Workflow (Required: Create a Todo List for the User)
-Before executing any changes, you MUST create a structured todo list using the `todowrite` tool to track the following steps:
-1.  **Analyze**: Run `git status` and `git diff` to understand changes.
-2.  **Stage**: Add relevant files using `git add`.
-3.  **Draft**: Generate a Conventional Commit message.
-4.  **Commit**: Execute `git commit`.
+## Workflow
 
-### 1. Analyze Changes
+### 1. Create Todo List
+Before executing any changes, you MUST create a structured todo list using the `todowrite` tool to track the following steps:
+1. Analyze git status and diff
+2. Clarify ambiguities (scope, breaking changes, staging preferences, commit format)
+3. Stage relevant files
+4. Draft conventional commit message
+5. Execute commit
+6. Verify commit success
+
+### 2. Analyze Changes
 Examine the current state of the repository to understand the context of the work.
 ```bash
 git status --porcelain
@@ -29,7 +42,15 @@ git diff              # Unstaged changes
 git diff --staged     # Staged changes
 ```
 
-### 2. Determine Intent & Category
+### 3. Clarify Ambiguities
+If the request lacks details, use the `question` tool to ask:
+
+1. **Scope**: "What scope should be used for this commit? (e.g., 'auth', 'api', 'ui', or leave empty for no scope)"
+2. **Breaking Changes**: "Are these changes breaking? Should they be marked with '!' or include a BREAKING CHANGE footer?"
+3. **Staging Preferences**: "Which files should be staged? (all changes, specific files, or only already staged files)"
+4. **Commit Format**: "Should the commit message include a body? Any references to include in footer? (e.g., 'Refs: #123')"
+
+### 4. Determine Intent & Category
 Based on the diff, categorize the change according to the specification:
 - **feat**: New feature (correlates with SemVer MINOR).
 - **fix**: Bug fix (correlates with SemVer PATCH).
@@ -43,24 +64,30 @@ Based on the diff, categorize the change according to the specification:
 - **chore**: Other changes that don't modify src or test files.
 - **revert**: Reverts a previous commit.
 
-### 3. Handle Breaking Changes
+### 5. Handle Breaking Changes
 A breaking change MUST be indicated by:
 1.  Appending a `!` after the type/scope (e.g., `feat(api)!: drop support for v1`).
 2.  AND/OR including a `BREAKING CHANGE:` footer.
 *Preference: Use `!` for visibility in the summary and a footer for detailed explanation.*
 
-### 4. Construct the Message
+### 6. Construct the Message
 - **Type**: Noun (feat, fix, etc.).
 - **Scope (Optional)**: Noun describing a section of the codebase (e.g., `fix(parser):`).
 - **Description**: Short summary in the **imperative, present tense** ("add", not "added").
 - **Body (Optional)**: Detailed explanation, separated by a blank line.
 - **Footer (Optional)**: External references (e.g., `Refs: #123`) or Breaking Change notes.
 
-### 5. Execution
+### 7. Execution
 Stage relevant files and execute the commit.
 ```bash
 git add <files>
 git commit -m "<message>"
+```
+
+### 8. Verify Commit Success
+Check that the commit succeeded:
+```bash
+git log --oneline -1
 ```
 
 ## Safety Protocol
@@ -68,3 +95,28 @@ git commit -m "<message>"
 - **Force**: NEVER run destructive commands (`--force`, `hard reset`) unless explicitly requested.
 - **Hooks**: If a commit fails due to a pre-commit hook, fix the issue and create a **NEW** commit. NEVER use `--no-verify` or `--amend` unless instructed.
 - **Main Branch**: Warn the user before committing directly to `main` or `master`.
+
+## Best Practices
+
+1. **Always use conventional commits** for semantic versioning compatibility
+2. **Keep commit messages concise** but descriptive
+3. **Use imperative mood** in the description ("add feature" not "added feature")
+4. **Reference issues** in footer when applicable
+5. **Mark breaking changes clearly** with `!` and BREAKING CHANGE footer
+6. **Stage related changes together** for logical commit grouping
+
+## Gotchas
+
+- **Scope detection**: The scope is not always obvious from the diff. When in doubt, ask the user.
+- **Breaking changes**: Breaking changes are easy to miss. Always ask for confirmation.
+- **Staging**: Never stage files without user confirmation if they're not already staged.
+- **Commit message length**: Keep the first line under 72 characters for readability.
+- **Pre-commit hooks**: If hooks fail, don't skip them unless absolutely necessary.
+
+## Output Format
+
+When executing a commit, provide:
+1. Summary of changes detected
+2. Proposed commit message (full format)
+3. List of files to be staged
+4. Confirmation before executing commit

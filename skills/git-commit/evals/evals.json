@@ -50,5 +50,15 @@
         "value": "docs: "
       }
     ]
+  },
+  {
+    "name": "Ambiguous Commit Request",
+    "prompt": "Commit these changes.",
+    "assertions": [
+      {
+        "type": "contains",
+        "value": "?"
+      }
+    ]
   }
 ]
