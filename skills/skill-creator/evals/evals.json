@@ -1,0 +1,23 @@
+{
+  "skill_name": "skill-creator",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Create a new OpenCode skill that helps me manage Docker containers via the CLI",
+      "expected_output": "A complete skill directory with SKILL.md containing proper frontmatter, usage instructions, and optionally bundled scripts for common Docker operations",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Improve the description of my existing data-analysis skill to trigger more reliably on CSV-related prompts",
+      "expected_output": "An optimized description field that balances specificity with broad applicability, following the guidelines for effective skill descriptions",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "Set up an evaluation workflow for my web-scraping skill with test cases and benchmarking",
+      "expected_output": "A complete evaluation harness including test case structure, baseline comparison setup, timing data collection, and human review capabilities",
+      "files": []
+    }
+  ]
+}

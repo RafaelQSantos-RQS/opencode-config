@@ -1,0 +1,22 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "plugin": ["opencode-gemini-auth@latest"],
+  "permission": {
+    "skill": "allow",
+    "read": "allow",
+    "glob": "allow",
+    "grep": "allow",
+    "list": "allow",
+    "edit": "ask",
+    "write": "ask",
+    "patch": "ask",
+    "bash": "ask",
+    "todowrite": "allow",
+    "todoread": "allow",
+    "question": "allow",
+    "webfetch": "allow",
+    "websearch": "allow",
+    "lsp": "allow"
+  },
+  "lsp": {}
+}
