@@ -53,6 +53,7 @@ The purpose of this skill is to **guide the user through creating, improving, an
    * When should it trigger? (keywords, context)
    * Desired output format?
    * Should we set up test cases to verify the skill works? (Objective outputs benefit from test cases; subjective ones may not need them)
+   * **Update References**: Do you want to update the reference documentation now? (Run `scripts/update-references.sh`)
 
 ### 2. **Interview & Research** – probe edge‑cases, dependencies, and reference materials:
    * Check available reference files in `references/opencode/` for technical details
