@@ -1,19 +1,17 @@
-# Configurações do Opencode
+# Configurações do OpenCode
 
-Este repositório contém um backup das minhas configurações do Opencode, incluindo plugins, permissões e habilidades personalizadas.
+Este repositório contém um backup das minhas configurações do OpenCode, incluindo plugins, permissões e habilidades personalizadas.
 
 ## Estrutura
 
-- `opencode.json` – Configuração principal do Opencode (schema, plugin, permissões, LSP).
-- `package.json` – Dependências do Opencode (apenas o plugin de autenticação Gemini).
-- `skills/` – Habilidades customizadas do Opencode, each skill contém um `SKILL.md` e recursos associados.
-- `node_modules/` – Dependências instaladas (ignorado pelo Git).
+- `opencode.json` – Configuração principal do OpenCode (schema, plugin, permissões, LSP, MCP).
+- `skills/` – Habilidades customizadas do OpenCode, cada skill contém um `SKILL.md` e recursos associados.
 
 ## Habilidades incluídas
 
 - `git-commit`: Executa commits com mensagens convencionais, staging inteligente e geração automática.
 - `git-flow-branch-creator`: Cria branches seguindo o modelo Git Flow.
-- `skill-creator`: Constrói e avalia habilidades para o Opencode.
+- `skill-creator`: Constrói e avalia habilidades para o OpenCode.
 - `sql-expert`: Orientação para escrever queries SQL limpas e performáticas.
 - `vagrant-file-creator`: Auxilia na criação e otimização de Vagrantfiles.
 
@@ -23,12 +21,18 @@ Este repositório contém um backup das minhas configurações do Opencode, incl
    ```bash
    git clone https://github.com/RafaelQSantos-RQS/opencode-config.git
    ```
-2. Copie os arquivos para o diretório `~/.config/opencode/` (ou onde seu Opencode está configurado para ler).
-3. Instale as dependências:
+2. Copie os arquivos para o diretório `~/.config/opencode/`:
    ```bash
-   bun install
+   cp -r * ~/.config/opencode/
    ```
-4. Reinicie o Opencode para aplicar as configurações.
+3. Reinicie o OpenCode para aplicar as configurações.
+
+## Atualizar referências
+
+As referências da skill `skill-creator` podem ser atualizadas com:
+```bash
+./skills/skill-creator/scripts/update-references.sh
+```
 
 ## Permissões
 
@@ -36,10 +40,9 @@ As permissões estão definidas em `opencode.json` – a maioria das ferramentas
 
 ## Notas
 
-- O diretório `node_modules/` é ignorado pelo Git.
 - As habilidades podem ser ativadas/desativadas conforme necessário.
 - Mantenha este repositório privado se contiver informações sensíveis (embora não haja chaves ou tokens aqui).
 
 ---
 
-Created with ❤️ for Opencode.
+Created with ❤️ for OpenCode.
