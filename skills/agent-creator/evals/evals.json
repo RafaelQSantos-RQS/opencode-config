@@ -1,0 +1,19 @@
+{
+  "test_cases": [
+    {
+      "id": "1",
+      "prompt": "Create a coding assistant agent for JavaScript using MDN web docs and popular npm packages",
+      "expected_behavior": "Should generate a skill directory with instructions for a JavaScript coding assistant agent"
+    },
+    {
+      "id": "2", 
+      "prompt": "Build a data analyst agent for CSV data processing using Python pandas documentation",
+      "expected_behavior": "Should create an agent configuration focused on data analysis with pandas"
+    },
+    {
+      "id": "3",
+      "prompt": "Make a legal expert agent using local law documents and legal practice guides",
+      "expected_behavior": "Should produce an agent specialized in legal domain with appropriate knowledge base"
+    }
+  ]
+}

@@ -1,0 +1,426 @@
+---
+title: "Improve your AI code output with AGENTS.md (+ my best tips)"
+author: "Steve Sewell"
+site: "Builder.io"
+published: 2025-09-09T07:00:00.000Z
+source: "https://www.builder.io/blog/agents-md"
+domain: "builder.io"
+language: "en"
+description: "Stop re-prompting. Put the rules in AGENTS.md: do and don’ts, file-level tests, and real examples so agents ship code that matches your project."
+word_count: 2477
+---
+
+If you have ever used an AI agent to generate code and thought, “this is so smart, and so dumb at the same time,” this is for you. A small `AGENTS.md` file can make a big difference to get your agents to behave the way you want.
+
+Below are my best tips for writing an effective `AGENTS.md`. We will start with a simple example that has none, then layer in each section with what it does and why it helps. At the end we will combine everything into a final `AGENTS.md`.
+
+## What is an AGENTS.md
+
+[AGENTS.md](http://agents.md/) is a small markdown file at the root of your repo that tells AI tools how your project works. Similar to tool-specific formats like `.cursorrules`, `.builderrules`, etc - which can clutter up your project with one-per-tool files, `AGENTS.md` is a growing standard for putting rules that should apply to any agents in one place.
+
+The file is basically a README for AI agents, and its supported by [many of them](https://agents.md/). Instead of repeating yourself in every prompt, you write the defaults once and let the agent start from there.
+
+## Results without an AGENTS.md
+
+Here is an example I tried with no `AGENTS.md`. I took a Figma design and pasted it into the [Builder.io agent](https://www.builder.io/fusion?_host=www.builder.io) and said: add this as an app-wide tab.
+
+What happened next was predictable. The agent explored the repo to figure out the structure, routing, where components live, and where state goes. It had no memory of this project. That discovery phase burns time and credits and repeats on every fresh chat.
+
+<video controls></video>
+
+Editing [Builder.io](https://www.builder.io/) with [Builder.io](https://www.builder.io/) (Builderception?) is all fun and games until AI does dumb stuff.
+
+The results visually looked good, but the details were off in small but annoying ways. It assumed a slightly different MUI version so a few styles did not apply.
+
+It used our preferred styling library (emotion CSS), but not in our preferred format. It reached for generic useState instead of mobx (mobx is criminally underrated). It generated an ApexCharts tooltip with a big HTML string to match pixels instead of just using the built-in one.
+
+It mostly used our tokens, but it missed a few in dark mode.
+
+<video controls></video>
+
+I prefer when dark mode works correctly.
+
+None of this is fatal, but the output can clearly be better and save us more time. So let us fix that by teaching the agent our defaults.
+
+## Best practices for an AGENTS.md
+
+![](https://www.youtube.com/watch?v=KEK_WcSTiuE)
+
+### Dos and Don’ts
+
+The main thing to do to create a good [`AGENTS.md`](https://agents.md/) is just do some trial and error with your code. Run some prompts, look at what you like and don’t like, and start compiling a list of dos and don’ts accordingly.
+
+This is your opportunity to be as nitpicky as you like. AI thrives on clear guidelines and feedback.
+
+Keep it small and clear. You can grow it later.
+
+```markdown
+### Do
+- use MUI v3. make sure your code is v3 compatible
+- use emotion \`css={{}}\` prop format
+- use mobx for state management with \`useLocalStore\`
+- use design tokens from \`DynamicStyles.tsx\` for all styling. no hard coding
+- use apex charts for charts. do not supply custom html
+- default to small components. prefer focused modules over god components
+- default to small files and diffs. avoid repo wide rewrites unless asked
+
+### Don't
+- do not hard code colors
+- do not use \`div\`s if we have a component already
+- do not add new heavy dependencies without approval
+```
+
+Why this helps
+
+- Version specificity removes subtle bugs like “works in v4 styles but breaks in v3”.
+- State choice removes guessing.
+- Small components and small diffs keep changes readable and reviewable.
+
+### File-scoped commands
+
+One thing that annoys me about most agents is that they try to run full project-wide build commands way too often. If you work on a non-trivial codebase, those commands can take minutes to run and are usually unnecessary.
+
+Thing is, agents know the file paths they just edited, and most key commands (tsc, prettier, test) can be run on a per-file basis.
+
+If you specify exactly the command formats to do that, you’ll get much faster feedback and fewer wasted cycles.
+
+```markdown
+### Commands
+
+# Type check a single file by path
+npm run tsc --noEmit path/to/file.tsx
+
+# Format a single file by path
+npm run prettier --write path/to/file.tsx
+
+# Lint a single file by path
+npm run eslint --fix path/to/file.tsx
+
+# Unit tests - pick one
+npm run vitest run path/to/file.test.tsx
+
+# Full build when explicitly requested
+yarn build:app
+
+Note: Always lint, test, and typecheck updated files. Use project-wide build sparingly.
+```
+
+Why this helps
+
+- Faster loops. Type check a single file in seconds instead of minutes.
+- Cheaper runs. You are not burning tokens or CI minutes on full builds when you just renamed a prop.
+- When things are fast and cheap, you can instruct the AI to always run them for better correctness.
+
+### Safety and permissions
+
+You can be as explicit as you like about what the agent can and can’t run without asking. Some tools have additional ways to configure allow/deny lists, but I personally fine natural language guidance can work well too.
+
+```markdown
+### Safety and permissions
+
+Allowed without prompt:
+- read files, list files
+- tsc single file, prettier, eslint,
+- vitest single test
+
+Ask first: 
+- package installs,
+- git push
+- deleting files, chmod
+- running full build or end to end suites
+```
+
+Why this helps
+
+- Fewer surprises. No “why did it npm install” moments.
+- Safer defaults. You control what can mutate state or touch the network.
+
+### Project structure hints
+
+Agents can search, but a few pointers can save a lot of time from it having to re-explore your codebase with each new chat. Think of this as a tiny index.
+
+```markdown
+### Project structure
+- see \`App.tsx\` for routes
+- see \`AppSideBar.tsx\` for the sidebar
+- components live in \`app/components\`
+- design tokens live in \`app/lib/theme/tokens.ts\`
+```
+
+Why this helps
+
+- Faster results. The agent starts where humans would start.
+- Context effectiveness. Files like routing, design tokens, and other files can always be in the context when relevant.
+
+### Use concrete examples
+
+Examples beat abstractions. Point to real files that show your best patterns. Also call out legacy files to avoid.
+
+```markdown
+### Good and bad examples
+- avoid class-based components like \`Admin.tsx\`
+- prefer functional components with hooks like \`Projects.tsx\`
+- forms: copy \`app/components/DashForm.tsx\`
+- charts: copy \`app/components/Charts/Bar.tsx\`
+- data grids: copy \`app/components/Table.tsx\`
+- data layer: use \`app/api/client.ts\` for HTTP. do not fetch directly inside components
+```
+
+Why this helps
+
+- Reduces drift from old code. You probably have some legacy that still compiles but should not be copied.
+- Increases fidelity. The agent mirrors your best examples in new code.
+
+### API docs references
+
+If you want a generated screen to work against real data on pass one, show the agent where the docs and typed clients live. Use short, specific pointers.
+
+Note: you can use MCP servers to expose docs not in your code as well, and you can write guidance on how and when to use MCP servers in your [`AGENTS.md`](http://agents.md/) too.
+
+```markdown
+### API docs
+- docs live in \`./api/docs/*.md\`
+- list projects - \`GET /api/projects\` using the typed client in \`app/api/client.ts\`
+- update project name - \`PATCH /api/projects/:id\` via \`client.projects.update\`
+- use the Builder.io MCP server to look up docs on Builder APIs
+```
+
+Why this helps
+
+- Correct by default. Don’t make the AI fly blind if it doesn’t have to.
+
+### You can nest AGENTS.md files
+
+Large repos benefit from hierarchical level rules. Add an `AGENTS.md` in each critical sub directory so guidance matches its exact stack and version. The agent reads the closest file to the work it is doing.
+
+Why this helps
+
+- Packages can evolve independently. A legacy package can keep React 17 rules while a new one is on React 18.
+- Cleaner guidance. Fewer conditionals in one giant file.
+
+### PR checklist
+
+Be explicit about what “ready” means. This is short and mechanical on purpose.
+
+```markdown
+### PR checklist
+- title: \`feat(scope): short description\`
+- lint, type check, unit tests - all green before commit
+- diff is small and focused. include a brief summary of what changed and why
+- remove any excessive logs or comments before sending a PR
+```
+
+Why this helps
+
+- Consistency. Every change goes through the same gates.
+- Faster reviews. Reviewers know what to expect.
+
+### When stuck, plan first
+
+Give the agent an escape hatch. If it is unsure, it should ask or propose a plan instead of guessing.
+
+```markdown
+### When stuck
+- ask a clarifying question, propose a short plan, or open a draft PR with notes
+- do not push large speculative changes without confirmation
+```
+
+Why this helps
+
+- Avoids dead ends. You trade one big wrong turn for a small question.
+
+### Optional test first mode
+
+On trickier tasks I sometimes want the agent to create or update tests first, then code until green. You can nudge it with a short section.
+
+```markdown
+### Test first mode
+- when adding new features: write or update unit tests first, then code to green
+- prefer component tests for UI state changes
+- for regressions: add a failing test that reproduces the bug, then fix to green
+```
+
+Why this helps
+
+- Enforces correctness. You lock behavior in tests before the code drifts.
+
+### Design system indexing
+
+If your design system lives in a separate package, the agent will guess how to use it. [Index your system](https://www.builder.io/c/docs/component-indexing) so the agent learns component APIs, tokens, and examples. Then reference that output here.
+
+```markdown
+### Design system
+- use components from \`@acme/ui\` per the indexed docs in \`./design-system-index/*.md\`
+- tokens come from \`@acme/ui/tokens\`
+- examples: see \`./design-system-index/examples/forms.md\` and \`./design-system-index/examples/tables.md\`
+```
+
+Why this helps
+
+- Higher fidelity UI. Fewer overrides and hacks to “match design”.
+- Less guessing. The agent knows your Button, Select, and theme rules.
+
+## Results with an AGENTS.md
+
+Now that we’ve added a lot more guidance for the AI, lets look at how the [Builder.io agent](https://www.builder.io/fusion?_host=www.builder.io) does with the same prompt we tried earlier.
+
+<video controls></video>
+
+This time, things are much better. UI is more accurate, tokens and dark mode are correct, and the code is cleaner.
+
+We can try prompting more, like adding a new table, and see the results as well.
+
+<video controls></video>
+
+Beautiful.
+
+The best part of it all is with tool like [Builder.io](http://builder.io/) an `AGENTS.md` is particularly helpful, because unlike purely engineering-focused tools like Cursor and Claude Code, Builder is commonly used by designers and product managers as well, so these rules become especially valuable to make sure when those non-developers are working with code, they are given great defaults and guidelines by default.
+
+## But what about CLAUDE.md, etc
+
+While many tools support `AGENTS.md`, not all do (yet). The solution though is easy - agents can look up files so one file can point to another file. For tools that don’t yet support the standard, you can have them simply point to your `AGENTS.md`, like:
+
+```markdown
+# CLAUDE.md
+Strictly follow the rules in ./AGENTS.md
+```
+
+Then, you can put as many files pointing to it as you like next to it, like
+
+```markdown
+/root
+  CLAUDE.md # just points to AGENTS.md
+  AGENTS.md
+```
+
+If you want to be fancy, you can also just symlink `CLAUDE.md` (etc) to `AGENTS.md` too.
+
+## The final AGENTS.md
+
+Here is a complete version that folds all the sections above into one file.
+
+```markdown
+# AGENTS.md
+
+### Do
+- use MUI v3. make sure your code is v3 compatible
+- use emotion css={{}} prop format
+- use mobx for state management with useLocalStore
+- use design tokens from DynamicStyles.tsx for all styling. no hard coding
+- use apex charts for charts. do not supply custom html
+- default to small components
+- default to small diffs
+
+### Don't
+- do not hard code colors
+- do not use divs if we have a component already
+- do not add new heavy dependencies without approval
+
+### Commands
+# file scoped checks preferred
+npm run tsc --noEmit path/to/file.tsx
+npm run prettier --write path/to/file.tsx
+npm run eslint --fix path/to/file.tsx
+# tests
+npm run vitest run path/to/file.test.tsx
+# full build when explicitly requested
+npm run build:app
+
+### Safety and permissions
+
+Allowed without prompt:
+- read files, list files
+- tsc single file, prettier, eslint,
+- vitest single test
+
+Ask first: 
+- package installs,
+- git push
+- deleting files, chmod
+- running full build or end to end suites
+
+### Project structure
+- see App.tsx for our routes
+- see AppSideBar.tsx for our sidebar
+- components are in app/components
+- theme tokens are in app/lib/theme/tokens.ts
+
+### Good and bad examples
+- avoid class based components like \`Admin.tsx\`
+- use functional components with hooks like \`Projects.tsx\`
+- forms: copy \`app/components/Form.Field.tsx\` and \`app/components/Form.Submit.tsx\`
+- charts: copy \`app/components/Charts/Bar.tsx\` and \`app/lib/chartTheme.ts\`
+- data layer: use \`app/api/client.ts\`. do not fetch in components
+
+### API docs
+- docs in ./api/docs/*.md
+- list projects - GET /api/projects using app/api/client.ts
+- update project name - PATCH /api/projects/:id using client.projects.update
+
+### PR checklist
+- format and type check: green
+- unit tests: green. add tests for new code paths
+- diff: small with a brief summary
+
+### When stuck
+- ask a clarifying question, propose a short plan, or open a draft PR with notes
+
+### Test first mode
+- write or update tests first on new features, then code to green
+
+### Design system
+- use @acme/ui per the indexed docs in ./design-system-index/*.md
+- tokens come from @acme/ui/tokens
+```
+
+## Best practices recap
+
+Honestly, if you do nothing else, just write a list of dos and dont’s and call it a day. Add to it as needed. Trial and error is key - run prompts, when things aren’t the way you prefer, put the feedback in your `AGENTS.md`.
+
+Keep your `AGENTS.md` small and scoped. Lead with concrete examples and file paths. Give file scoped commands for type check, format, lint, and tests. Iterate and add a rule the second time you see the same mistake.
+
+If you want to try all these out in an agent you get instant visual feedback on to quickly experiment with rules on your existing code - try out [Fusion](https://fusion.builder.io/) and send me your feedback.
+
+[
+
+### Design and code in one platform
+
+](#design-and-code-in-one-platform)
+
+Builder.io visually edits code, uses your design system, and sends pull requests.
+
+[Try Builder](https://builder.io/signup) [Get a demo](/m/demo)
+
+<video autoplay muted controls loop preload="metadata" class="builder-video css-cz4v3a"></video>
+
+![](https://cdn.builder.io/api/v1/pixel?apiKey=YJIGb4i01jvw0SRdL5Bt)
+
+[
+
+### Design and code in one platform
+
+](#design-and-code-in-one-platform)
+
+Builder.io visually edits code, uses your design system, and sends pull requests.
+
+[Try Builder](https://builder.io/signup) [Get a demo](/m/demo)
+
+<video autoplay muted controls loop preload="metadata" class="builder-video css-cz4v3a"></video>
+
+NEW! Fusion
+
+What should we build?
+
+|
+
+ [![GitHub](https://cdn.builder.io/api/v1/image/assets%2FYJIGb4i01jvw0SRdL5Bt%2Feac78eb5434f4623aa1474f0e82d57cc) Connect a Repo](https://builder.io/app/projects/github/connect?fusion=true)
+
+   
+
+![](https://cdn.builder.io/api/v1/pixel?apiKey=YJIGb4i01jvw0SRdL5Bt)
+
+### Convert Figma designs into code with AI
+
+Generate clean code using your components & design tokens
+
+<video controls></video>
