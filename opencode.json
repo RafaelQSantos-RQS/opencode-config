@@ -1,22 +1,76 @@
 {
-  "$schema": "https://opencode.ai/config.json",
-  "plugin": ["opencode-gemini-auth@latest"],
-  "permission": {
-    "skill": "allow",
-    "read": "allow",
-    "glob": "allow",
-    "grep": "allow",
-    "list": "allow",
-    "edit": "ask",
-    "write": "ask",
-    "patch": "ask",
-    "bash": "ask",
-    "todowrite": "allow",
-    "todoread": "allow",
-    "question": "allow",
-    "webfetch": "allow",
-    "websearch": "allow",
-    "lsp": "allow"
-  },
-  "lsp": {}
+   "$schema": "https://opencode.ai/config.json",
+   "plugin": [
+      "opencode-gemini-auth@latest",
+      "@tarquinen/opencode-dcp@latest"
+   ],
+   "permission": {
+      "skill": "allow",
+      "read": "allow",
+      "glob": "allow",
+      "grep": "allow",
+      "list": "allow",
+      "edit": "ask",
+      "write": "ask",
+      "patch": "ask",
+      "bash": "ask",
+      "todowrite": "allow",
+      "todoread": "allow",
+      "question": "allow",
+      "webfetch": "allow",
+      "websearch": "allow",
+      "lsp": "allow"
+   },
+   "mcp": {
+      "angular-cli": {
+         "command": [
+            "npx",
+            "-y",
+            "@angular/cli",
+            "mcp"
+         ],
+         "enabled": true,
+         "type": "local"
+      },
+      "docker-docs": {
+         "enabled": true,
+         "type": "local",
+         "command": [
+            "docker",
+            "run",
+            "--rm",
+            "-i",
+            "rafaelqsantosrqs/docker-docs"
+         ]
+      },
+      "linkedin": {
+         "enabled": false,
+         "type": "local",
+         "command": [
+            "uvx",
+            "linkedin-scraper-mcp@latest"
+         ],
+         "environment": {
+            "UV_HTTP_TIMEOUT": "300"
+         }
+      }
+   },
+   "provider": {
+      "ollama": {
+         "npm": "@ai-sdk/openai-compatible",
+         "name": "Ollama Local",
+         "options": {
+            "baseURL": "http://localhost:11434/v1"
+         },
+         "models": {
+            "gemma4:e4b": {
+               "name": "Gemma 4",
+               "limit": {
+                  "context": 131072,
+                  "output": 8192
+               }
+            }
+         }
+      }
+   }
 }

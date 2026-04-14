@@ -21,7 +21,7 @@ This skill automates the creation of semantic git commits by analyzing codebase 
 
 ## Reference Material
 For the full technical specification of Conventional Commits 1.0.0, refer to:
-- `references/conventional-commits.md`
+- https://www.conventionalcommits.org/en/v1.0.0/
 
 ## Workflow
 
